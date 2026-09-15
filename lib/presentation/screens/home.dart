@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cryptotrack/core/theme/themeConstants.dart';
 import 'package:cryptotrack/presentation/Bloc/events.dart';
 import 'package:cryptotrack/presentation/Bloc/states.dart';
@@ -16,14 +18,26 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String selectedCurrency = 'try';
+  Timer? timer;
 
   @override
   void initState() {
     super.initState();
-
     context.read<CryptoBloc>().add(
       FetchCryptosEvent(currency: selectedCurrency),
     );
+
+    timer = Timer.periodic(Duration(seconds: 30), (timer) {
+      context.read<CryptoBloc>().add(
+        FetchCryptosEvent(currency: selectedCurrency),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -39,7 +53,7 @@ class _HomeState extends State<Home> {
               children: [
                 cardBackgroundContainer(),
                 SizedBox(height: 20),
-      
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -53,16 +67,20 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                     SizedBox(width: 10),
-      
+
                     Expanded(
                       child: GestureDetector(
-                        child: buttonUI(Colors.orangeAccent, 'Para yatır', null),
+                        child: buttonUI(
+                          Colors.orangeAccent,
+                          'Para yatır',
+                          null,
+                        ),
                       ),
                     ),
                   ],
                 ),
                 SizedBox(height: 20),
-      
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

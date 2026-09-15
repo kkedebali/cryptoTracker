@@ -15,7 +15,7 @@ class FetchCryptosEvent extends CryptoEvent {
 class FetchCryptoInfos extends CryptoEvent {
   final String code;
 
-  FetchCryptoInfos({this.code = 'btc'});
+  FetchCryptoInfos({this.code = 'BTC'});
 }
 
 // <----- Bloc -----> //
@@ -70,7 +70,7 @@ class CryptoBloc extends Bloc<CryptoEvent, CryptoState> {
     on<FetchCryptoInfos>((event, emit) async {
       emit(CryptoLoadingState());
       try {
-        
+
       } catch (e) {
         String errorMessage = 'Bu kriptoya ait bir hata oluştu!';
         emit(CryptoErrorState(errorMessage));
