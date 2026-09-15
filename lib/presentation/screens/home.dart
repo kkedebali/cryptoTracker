@@ -105,17 +105,15 @@ class _HomeState extends State<Home> {
                   child: BlocBuilder<CryptoBloc, CryptoState>(
                     builder: (context, state) {
                       if (state is CryptoLoadingState) {
-                        return Center(
-                          child: Shimmer.fromColors(
-                            baseColor: Colors.grey.shade800,
-                            highlightColor: Colors.grey.shade600,
-                            child: ListView.builder(
-                              itemCount: 10,
-                              itemBuilder: (context, index) {
-                                return loadingSkeleton();
-                              },
-                            )
-                          ),
+                        return Shimmer.fromColors(
+                          baseColor: Colors.grey.shade800,
+                          highlightColor: Colors.grey.shade600,
+                          child: ListView.builder(
+                            itemCount: 10,
+                            itemBuilder: (context, index) {
+                              return loadingSkeleton();
+                            },
+                          )
                         );
                       } else if (state is CryptoLoadedState) {
                         return ListView.builder(
