@@ -8,6 +8,7 @@ import 'package:cryptotrack/presentation/widgets/currencyChange.dart';
 import 'package:cryptotrack/presentation/widgets/global.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -53,7 +54,6 @@ class _HomeState extends State<Home> {
               children: [
                 cardBackgroundContainer(),
                 SizedBox(height: 20),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -105,7 +105,18 @@ class _HomeState extends State<Home> {
                   child: BlocBuilder<CryptoBloc, CryptoState>(
                     builder: (context, state) {
                       if (state is CryptoLoadingState) {
-                        return const Center(child: CircularProgressIndicator());
+                        return Center(
+                          child: Shimmer.fromColors(
+                            baseColor: Colors.grey.shade800,
+                            highlightColor: Colors.grey.shade600,
+                            child: ListView.builder(
+                              itemCount: 10,
+                              itemBuilder: (context, index) {
+                                return loadingSkeleton();
+                              },
+                            )
+                          ),
+                        );
                       } else if (state is CryptoLoadedState) {
                         return ListView.builder(
                           itemCount: state.cryptos.length,

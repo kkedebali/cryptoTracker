@@ -14,6 +14,7 @@ dependencies:
   flutter_bloc: ^9.1.1
   dio: ^5.11.1
   intl: ^0.20.3
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:

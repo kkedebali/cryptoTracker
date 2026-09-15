@@ -169,3 +169,15 @@ Widget cryptosUI(
     ),
   );
 }
+
+Widget loadingSkeleton(){
+  return Container(
+    height: 80,
+    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+    margin: EdgeInsets.only(bottom: 10),
+    decoration: BoxDecoration(
+      color: ThemeConstants.containerBack.withAlpha(150),
+      borderRadius: BorderRadius.circular(ThemeConstants.containerBorder),
+    ),
+  );
+}
