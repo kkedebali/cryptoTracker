@@ -1,4 +1,5 @@
 import 'package:cryptotrack/domain/abstractRepo.dart';
+import 'package:cryptotrack/domain/entities/cryptoEntity.dart';
 import 'package:cryptotrack/presentation/Bloc/states.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,22 +13,38 @@ class FetchCryptosEvent extends CryptoEvent {
   FetchCryptosEvent({this.currency = 'try'});
 }
 
+class SearchCrypto extends CryptoEvent {
+  final String search;
+
+  SearchCrypto({required this.search});
+}
+
 class FetchCryptoInfos extends CryptoEvent {
   final String code;
 
   FetchCryptoInfos({this.code = 'BTC'});
 }
 
-// <----- Bloc -----> // // -- Usecase yok 
+// <----- Bloc -----> // // -- Usecase yok
 class CryptoBloc extends Bloc<CryptoEvent, CryptoState> {
   final CryptoRepoAbstract repository;
 
+  List<CryptoEntity> allCryptos = [];
+  String searchQuery = '';
+
   CryptoBloc({required this.repository}) : super(CryptoInitial()) {
     on<FetchCryptosEvent>((event, emit) async {
-      emit(CryptoLoadingState());
+      if (allCryptos.isEmpty) {
+        emit(CryptoLoadingState());
+      }
       try {
-        final cryptoList = await repository.getCryptos(event.currency);
-        emit(CryptoLoadedState(cryptoList));
+        allCryptos = await repository.getCryptos(event.currency);
+
+        final filteredCryptos = searchQuery.isEmpty
+            ? allCryptos
+            : await repository.filteredCryptos(allCryptos, searchQuery);
+
+        emit(CryptoLoadedState(filteredCryptos));
       } catch (e) {
         String errorMessage = 'Beklenmeyen bir hata oluştu.';
 
@@ -67,11 +84,31 @@ class CryptoBloc extends Bloc<CryptoEvent, CryptoState> {
       }
     });
 
+    on<SearchCrypto>((event, emit) async {
+      searchQuery = event.search;
+
+      try {
+        if (allCryptos.isEmpty) {
+          return;
+        }
+        if (searchQuery.isEmpty) {
+          emit(CryptoLoadedState(allCryptos));
+        } else {
+          final filteredCryptos = await repository.filteredCryptos(
+            allCryptos,
+            searchQuery,
+          );
+          emit(CryptoLoadedState(filteredCryptos));
+        }
+      } catch (e) {
+        String errorMessage = 'Kripto Arama Hatası!';
+        emit(CryptoErrorState(errorMessage));
+      }
+    });
+
     on<FetchCryptoInfos>((event, emit) async {
       emit(CryptoLoadingState());
-      try {
-
-      } catch (e) {
+      try {} catch (e) {
         String errorMessage = 'Bu kriptoya ait bir hata oluştu!';
         emit(CryptoErrorState(errorMessage));
       }

@@ -36,4 +36,23 @@ class CryptoRepoImpl implements CryptoRepoAbstract {
 
     return [];
   }
+
+  @override
+  Future<List<CryptoEntity>> filteredCryptos(
+    List<CryptoEntity> cryptos,
+    String search,
+  ) async {
+    try {
+      final filteredCryptos = cryptos.where((cryptos) {
+        final ccode = cryptos.code.toString().toLowerCase();
+        final cname = cryptos.name.toString().toLowerCase();
+        return ccode.contains(search.toLowerCase()) || cname.contains(search.toLowerCase());
+      }).toList();
+
+      return Future.value(filteredCryptos);
+    } catch (e) {
+      debugPrint('Hata oluştu: $e');
+      rethrow;
+    }
+  }
 }

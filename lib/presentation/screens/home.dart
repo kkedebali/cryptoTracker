@@ -22,9 +22,8 @@ class _HomeState extends State<Home> {
   Timer? timer;
 
   List<Map<String, dynamic>> cryptoList = [];
-  List<Map<String, dynamic>> cryptoFilteredList = [];
 
-  final TextEditingController searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -106,7 +105,6 @@ class _HomeState extends State<Home> {
                 ),
                 SizedBox(height: 10),
                 TextField(
-                  controller: searchController,
                   style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Arama...',
@@ -116,23 +114,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   onChanged: (value) {
-                    setState(() {
-                      if (value.isEmpty) {
-                        cryptoFilteredList = cryptoList;
-                        return;
-                      }
-                      cryptoFilteredList = cryptoList.where((search) {
-                        final name = search['name'].toString();
-                        final code = search['code'].toString();
-
-                        if (name.toLowerCase().contains(value.toLowerCase()) ||
-                            code.toLowerCase().contains(value.toLowerCase())) {
-                          return true;
-                        } else {
-                          return false;
-                        }
-                      }).toList();
-                    });
+                    context.read<CryptoBloc>().add(SearchCrypto(search: value));
                   },
                 ),
                 SizedBox(height: 10),
@@ -151,6 +133,13 @@ class _HomeState extends State<Home> {
                           ),
                         );
                       } else if (state is CryptoLoadedState) {
+
+                        if (state.cryptos.isEmpty) {
+                          return Center(
+                            child: mainText('Aradığınız kripto bulunamadı.'),
+                          );
+                        }
+
                         cryptoList = state.cryptos.map((crypto) {
                           return {
                             'image': crypto.safeImage,
@@ -161,26 +150,16 @@ class _HomeState extends State<Home> {
                           };
                         }).toList();
 
-                        final displayList = searchController.text.isEmpty
-                            ? cryptoList
-                            : cryptoFilteredList;
-
-                        if (displayList.isEmpty) {
-                          return Center(
-                            child: secText('Aradığınız kripto bulunamadı.'),
-                          );
-                        }
-
                         return ListView.builder(
-                          itemCount: displayList.length,
+                          itemCount: state.cryptos.length,
                           itemBuilder: (context, index) {
-                            final crypto = displayList[index];
+                            final crypto = state.cryptos[index];
                             return cryptosUI(
-                              crypto['image'],
-                              crypto['name'],
-                              crypto['code'],
-                              crypto['price'],
-                              crypto['change'],
+                              crypto.safeImage,
+                              crypto.safeName,
+                              crypto.safeCode,
+                              crypto.safePrice,
+                              crypto.safeChange,
                             );
                           },
                         );
