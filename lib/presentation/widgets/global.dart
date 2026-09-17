@@ -133,12 +133,10 @@ Widget cryptosUI(
   Function()? onFavoriteToggle,
 ) {
   txt = txt ?? 'Bitcoin';
-  code = code ?? 'BTC';
+  code = code ?? 'btc';
   change = change ?? 5.35;
   price = price ?? 100000;
   isFavorite = isFavorite ?? false;
-
-  debugPrint(isFavorite.toString());
 
   final formatter = NumberFormat('#,##0.00', 'en_US');
   final cleanPrice = formatter.format(price);

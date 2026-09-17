@@ -8,6 +8,7 @@ import 'package:cryptotrack/presentation/widgets/currencyChange.dart';
 import 'package:cryptotrack/presentation/widgets/global.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 
 class Home extends StatefulWidget {
@@ -21,6 +22,7 @@ class _HomeState extends State<Home> {
   List<String> favoriteCodes = [];
   String selectedCurrency = 'try';
   Timer? timer;
+  bool isFavoriteSelected = false;
 
   List<Map<String, dynamic>> cryptoList = [];
 
@@ -118,10 +120,38 @@ class _HomeState extends State<Home> {
                   },
                 ),
                 SizedBox(height: 10),
+                Row(
+                  children: [
+                    ChoiceChip(
+                      label: Text('Tümü'),
+                      selected: !isFavoriteSelected,
+                      onSelected: (selected) {
+                        if (selected) {
+                          setState(() {
+                            isFavoriteSelected = false;
+                          });
+                        }
+                      },
+                    ),
+                    SizedBox(width: 10),
+                    ChoiceChip(
+                      label: Text('Favoriler'),
+                      selected: isFavoriteSelected,
+                      onSelected: (selected) {
+                        if (selected) {
+                          setState(() {
+                            isFavoriteSelected = true;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+
                 Expanded(
                   child: BlocBuilder<CryptoBloc, CryptoState>(
                     builder: (context, state) {
-
                       if (state is CryptoLoadingState) {
                         return Shimmer.fromColors(
                           baseColor: Colors.grey.shade800,
@@ -134,6 +164,24 @@ class _HomeState extends State<Home> {
                           ),
                         );
                       } else if (state is CryptoLoadedState) {
+                        final displayedCryptos = isFavoriteSelected
+                            ? state.cryptos.where((crypto) {
+                                final code = crypto.safeCode.toLowerCase();
+                                return state.favorites
+                                    .map((e) => e.toLowerCase())
+                                    .contains(code);
+                              }).toList()
+                            : state.cryptos;
+
+                        if (displayedCryptos.isEmpty) {
+                          return Center(
+                            child: mainText(
+                              isFavoriteSelected
+                                  ? 'Henüz favori kripto eklemediniz.'
+                                  : 'Aradığınız kripto bulunamadı.',
+                            ),
+                          );
+                        }
                         if (state.cryptos.isEmpty) {
                           return Center(
                             child: mainText('Aradığınız kripto bulunamadı.'),
@@ -151,9 +199,9 @@ class _HomeState extends State<Home> {
                         }).toList();
 
                         return ListView.builder(
-                          itemCount: state.cryptos.length,
+                          itemCount: displayedCryptos.length,
                           itemBuilder: (context, index) {
-                            final crypto = state.cryptos[index];
+                            final crypto = displayedCryptos[index];
                             final code = crypto.safeCode.toLowerCase();
                             final isFav = state.favorites
                                 .map((e) => e.toLowerCase())

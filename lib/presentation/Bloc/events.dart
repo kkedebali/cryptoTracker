@@ -47,7 +47,7 @@ class CryptoBloc extends Bloc<CryptoEvent, CryptoState> {
 
         final filtered = searchQuery.isEmpty
             ? allCryptos
-            : await repository.filteredCryptos(allCryptos, searchQuery);
+            : repository.filteredCryptos(allCryptos, searchQuery);
 
         emit(CryptoLoadedState(filtered, favorites: favorites));
       } catch (e) {
@@ -55,21 +55,22 @@ class CryptoBloc extends Bloc<CryptoEvent, CryptoState> {
       }
     });
 
-    on<SearchCrypto>((event, emit) {
+    on<SearchCrypto>((event, emit) async {
       searchQuery = event.search;
+      final favorites = await repository.getFavorites();
 
       try {
         if (allCryptos.isEmpty) {
           return;
         }
         if (searchQuery.isEmpty) {
-          emit(CryptoLoadedState(allCryptos));
+          emit(CryptoLoadedState(allCryptos, favorites: favorites));
         } else {
           final filteredCryptos = repository.filteredCryptos(
             allCryptos,
             searchQuery,
           );
-          emit(CryptoLoadedState(filteredCryptos));
+          emit(CryptoLoadedState(filteredCryptos, favorites: favorites));
         }
       } catch (e) {
         String errorMessage = 'Kripto Arama Hatası!';
