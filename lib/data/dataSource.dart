@@ -38,21 +38,24 @@ class CryptoRepoImpl implements CryptoRepoAbstract {
   }
 
   @override
-  Future<List<CryptoEntity>> filteredCryptos(
+  List<CryptoEntity> filteredCryptos(
     List<CryptoEntity> cryptos,
     String search,
-  ) async {
-    try {
-      final filteredCryptos = cryptos.where((cryptos) {
-        final ccode = cryptos.code.toString().toLowerCase();
-        final cname = cryptos.name.toString().toLowerCase();
-        return ccode.contains(search.toLowerCase()) || cname.contains(search.toLowerCase());
-      }).toList();
+  )  {
+    if (search.trim().isEmpty) return cryptos;
 
-      return Future.value(filteredCryptos);
+    try {
+      final query = search.trim().toLowerCase();
+
+      return cryptos.where((crypto) {
+        final code = crypto.code.toString().toLowerCase();
+        final name = crypto.name.toString().toLowerCase();
+
+        return code.contains(query) || name.contains(query);
+      }).toList();
     } catch (e) {
-      debugPrint('Hata oluştu: $e');
-      rethrow;
+      debugPrint('Filtreleme hatası: $e');
+      return cryptos; // Hata durumunda uygulamayı patlatmak yerine orijinal listeyi dönmek daha güvenlidir
     }
   }
 }

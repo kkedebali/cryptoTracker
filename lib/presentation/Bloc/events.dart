@@ -84,7 +84,7 @@ class CryptoBloc extends Bloc<CryptoEvent, CryptoState> {
       }
     });
 
-    on<SearchCrypto>((event, emit) async {
+    on<SearchCrypto>((event, emit)  {
       searchQuery = event.search;
 
       try {
@@ -94,7 +94,7 @@ class CryptoBloc extends Bloc<CryptoEvent, CryptoState> {
         if (searchQuery.isEmpty) {
           emit(CryptoLoadedState(allCryptos));
         } else {
-          final filteredCryptos = await repository.filteredCryptos(
+          final filteredCryptos =  repository.filteredCryptos(
             allCryptos,
             searchQuery,
           );
