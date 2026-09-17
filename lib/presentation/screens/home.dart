@@ -8,7 +8,6 @@ import 'package:cryptotrack/presentation/widgets/currencyChange.dart';
 import 'package:cryptotrack/presentation/widgets/global.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 
 class Home extends StatefulWidget {
@@ -88,38 +87,9 @@ class _HomeState extends State<Home> {
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    secText('Kriptolar'),
-                    CurrencyDropdown(
-                      selectedCurrency: selectedCurrency,
-                      onCurrencyChanged: (String? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            selectedCurrency = newValue;
-                          });
-                          context.read<CryptoBloc>().add(
-                            FetchCryptosEvent(currency: selectedCurrency),
-                          );
-                        }
-                      },
-                    ),
-                  ],
+                  children: [secText('Kriptolar')],
                 ),
-                SizedBox(height: 10),
-                TextField(
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Arama...',
-                    hintStyle: TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    context.read<CryptoBloc>().add(SearchCrypto(search: value));
-                  },
-                ),
-                SizedBox(height: 10),
+
                 Row(
                   children: [
                     ChoiceChip(
@@ -147,6 +117,48 @@ class _HomeState extends State<Home> {
                     ),
                   ],
                 ),
+                SizedBox(height: 10),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 50,
+                        child: TextField(
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: 'Arama...',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onChanged: (value) {
+                            context.read<CryptoBloc>().add(
+                              SearchCrypto(search: value),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+
+                    CurrencyDropdown(
+                      selectedCurrency: selectedCurrency,
+                      onCurrencyChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            selectedCurrency = newValue;
+                          });
+                          context.read<CryptoBloc>().add(
+                            FetchCryptosEvent(currency: selectedCurrency),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+
                 SizedBox(height: 10),
 
                 Expanded(

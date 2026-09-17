@@ -94,7 +94,7 @@ Widget changeText(String txt, double price) {
     textAlign: TextAlign.start,
     style: TextStyle(
       fontSize: ThemeConstants.fontSizeSec,
-      color: price >= 0 ? Colors.greenAccent : Colors.redAccent ,
+      color: price >= 0 ? Colors.greenAccent : Colors.redAccent,
       fontWeight: FontWeight.w500,
     ),
   );
@@ -105,9 +105,9 @@ Widget buttonText(Color? clr, String txt) {
     txt,
     textAlign: TextAlign.center,
     style: TextStyle(
-      fontSize: ThemeConstants.fontSizeSec,
+      fontSize: ThemeConstants.fontSizeSec - 5,
       color: clr ?? Colors.black,
-      fontWeight: FontWeight.w400,
+      fontWeight: FontWeight.bold,
     ),
   );
 }
@@ -167,8 +167,11 @@ Widget cryptosUI(
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
-            
-              children: [highLightSecText(cleanPrice), changeText('$cleanChange%',change)],
+
+              children: [
+                highLightSecText(cleanPrice),
+                changeText('$cleanChange%', change),
+              ],
             ),
             GestureDetector(
               onTap: () {
@@ -179,13 +182,11 @@ Widget cryptosUI(
               child: Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Icon(
-                    isFavorite ? Icons.star : Icons.star_border,
-                    color: isFavorite ? Colors.yellow : Colors.grey,
-                  ),
+                  isFavorite ? Icons.star : Icons.star_border,
+                  color: isFavorite ? Colors.yellow : Colors.grey,
+                ),
               ),
             ),
-              
-          
           ],
         ),
       ],
@@ -193,7 +194,7 @@ Widget cryptosUI(
   );
 }
 
-Widget loadingSkeleton(){
+Widget loadingSkeleton() {
   return Container(
     height: 80,
     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
