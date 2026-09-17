@@ -9,7 +9,7 @@ Widget cardBackgroundContainer() {
       vertical: ThemeConstants.vertPads,
     ),
     decoration: BoxDecoration(
-      color: ThemeConstants.containerBack.withAlpha(50),
+      color: ThemeConstants.containerBackOpacity,
       borderRadius: BorderRadius.all(
         Radius.circular(ThemeConstants.containerBorder),
       ),
@@ -202,6 +202,40 @@ Widget loadingSkeleton() {
     decoration: BoxDecoration(
       color: ThemeConstants.containerBack.withAlpha(150),
       borderRadius: BorderRadius.circular(ThemeConstants.containerBorder),
+    ),
+  );
+}
+
+Widget chipText(String txt, bool isSelected) {
+  return Text(
+    txt,
+    textAlign: TextAlign.center,
+    style: TextStyle(
+      fontSize: ThemeConstants.fontSizeChip,
+      color: isSelected ? Colors.black : Colors.grey,
+      fontWeight: FontWeight.w500,
+    ),
+  );
+}
+
+Widget chipUI(String txt, bool isSelected, Function(bool)? onSelected) {
+  return GestureDetector(
+    onTap: () {
+      if (onSelected != null) {
+        onSelected(!isSelected);
+      }
+    },
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        // Seçiliyse Tam Beyaz, değilse tam istediğin Alpha'lı Beyaz
+        color: isSelected
+            ? Colors.orangeAccent
+            : ThemeConstants.containerBackOpacity,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: chipText(txt, isSelected),
     ),
   );
 }

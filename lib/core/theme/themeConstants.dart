@@ -12,10 +12,12 @@ class ThemeConstants {
   //  <----- Color -----> //
   static Color scaffoldBack = Colors.black;
   static Color containerBack = Colors.white;
+  static Color containerBackOpacity = Colors.white.withAlpha(50);
   static Color textMain = Colors.white;
   static Color textSec = Colors.white.withAlpha(150);
 
   //  <----- Fonts -----> //
   static double fontSizeMain = 45;
   static double fontSizeSec = 20;
+  static double fontSizeChip = 15;
 }
