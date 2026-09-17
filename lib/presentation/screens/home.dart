@@ -18,11 +18,11 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  List<String> favoriteCodes = [];
   String selectedCurrency = 'try';
   Timer? timer;
 
   List<Map<String, dynamic>> cryptoList = [];
-
 
   @override
   void initState() {
@@ -121,6 +121,7 @@ class _HomeState extends State<Home> {
                 Expanded(
                   child: BlocBuilder<CryptoBloc, CryptoState>(
                     builder: (context, state) {
+
                       if (state is CryptoLoadingState) {
                         return Shimmer.fromColors(
                           baseColor: Colors.grey.shade800,
@@ -133,7 +134,6 @@ class _HomeState extends State<Home> {
                           ),
                         );
                       } else if (state is CryptoLoadedState) {
-
                         if (state.cryptos.isEmpty) {
                           return Center(
                             child: mainText('Aradığınız kripto bulunamadı.'),
@@ -154,12 +154,25 @@ class _HomeState extends State<Home> {
                           itemCount: state.cryptos.length,
                           itemBuilder: (context, index) {
                             final crypto = state.cryptos[index];
+                            final code = crypto.safeCode.toLowerCase();
+                            final isFav = state.favorites
+                                .map((e) => e.toLowerCase())
+                                .contains(code);
+
                             return cryptosUI(
                               crypto.safeImage,
                               crypto.safeName,
                               crypto.safeCode,
                               crypto.safePrice,
                               crypto.safeChange,
+                              isFav,
+                              () {
+                                context.read<CryptoBloc>().add(
+                                  ToggleFavoritesEvent(
+                                    code: crypto.safeCode.toLowerCase(),
+                                  ),
+                                );
+                              },
                             );
                           },
                         );

@@ -7,4 +7,7 @@ abstract class CryptoRepoAbstract {
     List<CryptoEntity> cryptos,
     String code,
   );
+
+  Future<List<String>> getFavorites();
+  Future<void> toggleFavorites(String code);
 }

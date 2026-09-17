@@ -13,6 +13,12 @@ class FetchCryptosEvent extends CryptoEvent {
   FetchCryptosEvent({this.currency = 'try'});
 }
 
+class ToggleFavoritesEvent extends CryptoEvent {
+  final String code;
+
+  ToggleFavoritesEvent({required this.code});
+}
+
 class SearchCrypto extends CryptoEvent {
   final String search;
 
@@ -34,57 +40,22 @@ class CryptoBloc extends Bloc<CryptoEvent, CryptoState> {
 
   CryptoBloc({required this.repository}) : super(CryptoInitial()) {
     on<FetchCryptosEvent>((event, emit) async {
-      if (allCryptos.isEmpty) {
-        emit(CryptoLoadingState());
-      }
+      if (allCryptos.isEmpty) emit(CryptoLoadingState());
       try {
         allCryptos = await repository.getCryptos(event.currency);
+        final favorites = await repository.getFavorites();
 
-        final filteredCryptos = searchQuery.isEmpty
+        final filtered = searchQuery.isEmpty
             ? allCryptos
             : await repository.filteredCryptos(allCryptos, searchQuery);
 
-        emit(CryptoLoadedState(filteredCryptos));
+        emit(CryptoLoadedState(filtered, favorites: favorites));
       } catch (e) {
-        String errorMessage = 'Beklenmeyen bir hata oluştu.';
-
-        if (e is DioException) {
-          switch (e.type) {
-            case DioExceptionType.connectionTimeout:
-            case DioExceptionType.sendTimeout:
-            case DioExceptionType.receiveTimeout:
-              errorMessage =
-                  'Bağlantı zaman aşımına uğradı. Lütfen internetinizi kontrol edin.';
-              break;
-            case DioExceptionType.connectionError:
-              errorMessage = 'İnternet bağlantınız koptu.';
-              break;
-            case DioExceptionType.badResponse:
-              final statusCode = e.response?.statusCode;
-              if (statusCode == 400) {
-                errorMessage =
-                    'Bizim tarafımızda sorun oluştu (Hatalı parametre).';
-              } else if (statusCode == 404) {
-                errorMessage = 'Aradığınız kaynak bulunamadı.';
-              } else if (statusCode != null && statusCode >= 500) {
-                errorMessage =
-                    'Sunucu kaynaklı bir sorun oluştu. Lütfen daha sonra tekrar deneyin.';
-              } else {
-                errorMessage = 'Sunucu hatası (Kod: $statusCode)';
-              }
-              break;
-            default:
-              errorMessage = 'Bir ağ hatası oluştu.';
-              break;
-          }
-        } else {
-          errorMessage = e.toString();
-        }
-        emit(CryptoErrorState(errorMessage));
+        emit(CryptoErrorState(parseErrorMessage(e)));
       }
     });
 
-    on<SearchCrypto>((event, emit)  {
+    on<SearchCrypto>((event, emit) {
       searchQuery = event.search;
 
       try {
@@ -94,7 +65,7 @@ class CryptoBloc extends Bloc<CryptoEvent, CryptoState> {
         if (searchQuery.isEmpty) {
           emit(CryptoLoadedState(allCryptos));
         } else {
-          final filteredCryptos =  repository.filteredCryptos(
+          final filteredCryptos = repository.filteredCryptos(
             allCryptos,
             searchQuery,
           );
@@ -106,6 +77,20 @@ class CryptoBloc extends Bloc<CryptoEvent, CryptoState> {
       }
     });
 
+    on<ToggleFavoritesEvent>((event, emit) async {
+      try {
+        await repository.toggleFavorites(event.code);
+        final updatedFavorites = await repository.getFavorites();
+
+        if (state is CryptoLoadedState) {
+          final currentState = state as CryptoLoadedState;
+          emit(currentState.copyWith(favorites: updatedFavorites));
+        }
+      } catch (e) {
+        emit(FavoritesErrorState(message: 'Favori güncellenemedi.'));
+      }
+    });
+
     on<FetchCryptoInfos>((event, emit) async {
       emit(CryptoLoadingState());
       try {} catch (e) {
@@ -114,4 +99,28 @@ class CryptoBloc extends Bloc<CryptoEvent, CryptoState> {
       }
     });
   }
+}
+
+String parseErrorMessage(dynamic e) {
+  if (e is DioException) {
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return 'Bağlantı zaman aşımına uğradı. Lütfen internetinizi kontrol edin.';
+      case DioExceptionType.connectionError:
+        return 'İnternet bağlantınız koptu.';
+      case DioExceptionType.badResponse:
+        final statusCode = e.response?.statusCode;
+        if (statusCode == 400) return 'Hatalı istek (400).';
+        if (statusCode == 404) return 'Aradığınız kaynak bulunamadı.';
+        if (statusCode != null && statusCode >= 500) {
+          return 'Sunucu kaynaklı bir sorun oluştu.';
+        }
+        return 'Sunucu hatası (Kod: $statusCode)';
+      default:
+        return 'Bir ağ hatası oluştu.';
+    }
+  }
+  return e.toString();
 }

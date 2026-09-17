@@ -129,11 +129,16 @@ Widget cryptosUI(
   String? code,
   double? price,
   double? change,
+  bool? isFavorite,
+  Function()? onFavoriteToggle,
 ) {
   txt = txt ?? 'Bitcoin';
   code = code ?? 'BTC';
   change = change ?? 5.35;
   price = price ?? 100000;
+  isFavorite = isFavorite ?? false;
+
+  debugPrint(isFavorite.toString());
 
   final formatter = NumberFormat('#,##0.00', 'en_US');
   final cleanPrice = formatter.format(price);
@@ -160,10 +165,30 @@ Widget cryptosUI(
             ),
           ],
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-
-          children: [highLightSecText(cleanPrice), changeText('$cleanChange%',change)],
+        Row(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+            
+              children: [highLightSecText(cleanPrice), changeText('$cleanChange%',change)],
+            ),
+            GestureDetector(
+              onTap: () {
+                if (onFavoriteToggle != null) {
+                  onFavoriteToggle();
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Icon(
+                    isFavorite ? Icons.star : Icons.star_border,
+                    color: isFavorite ? Colors.yellow : Colors.grey,
+                  ),
+              ),
+            ),
+              
+          
+          ],
         ),
       ],
     ),

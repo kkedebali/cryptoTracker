@@ -1,8 +1,10 @@
 import 'package:cryptotrack/data/model/cryptoModel.dart';
 import 'package:cryptotrack/domain/abstractRepo.dart';
 import 'package:cryptotrack/domain/entities/cryptoEntity.dart';
+import 'package:cryptotrack/domain/entities/favoritesEntity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class CryptoRepoImpl implements CryptoRepoAbstract {
   final dio = Dio();
@@ -41,7 +43,7 @@ class CryptoRepoImpl implements CryptoRepoAbstract {
   List<CryptoEntity> filteredCryptos(
     List<CryptoEntity> cryptos,
     String search,
-  )  {
+  ) {
     if (search.trim().isEmpty) return cryptos;
 
     try {
@@ -57,5 +59,24 @@ class CryptoRepoImpl implements CryptoRepoAbstract {
       debugPrint('Filtreleme hatası: $e');
       return cryptos; // Hata durumunda uygulamayı patlatmak yerine orijinal listeyi dönmek daha güvenlidir
     }
+  }
+
+  @override
+  Future<void> toggleFavorites(String code) async {
+    final favoritesBox = Hive.box<FavoritesEntity>('favorites_box');
+    final cleanCode = code.toLowerCase().trim();
+
+    if (favoritesBox.containsKey(cleanCode)) {
+      await favoritesBox.delete(cleanCode);
+    } else {
+      await favoritesBox.put(cleanCode, FavoritesEntity(code: cleanCode));
+    }
+  }
+
+  @override
+  Future<List<String>> getFavorites() async {
+    final favoritesBox = Hive.box<FavoritesEntity>('favorites_box');
+
+    return favoritesBox.values.map((e) => e.code.toLowerCase().trim()).toList();
   }
 }
