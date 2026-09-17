@@ -21,6 +21,9 @@ class _HomeState extends State<Home> {
   String selectedCurrency = 'try';
   Timer? timer;
 
+  List<Map<String, dynamic>> cryptoList = [];
+  List<Map<String, dynamic>> cryptoFilteredList = [];
+
   @override
   void initState() {
     super.initState();
@@ -101,6 +104,31 @@ class _HomeState extends State<Home> {
                   ],
                 ),
                 SizedBox(height: 10),
+                TextField(
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'Arama...',
+                    hintStyle: TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      cryptoFilteredList = cryptoList.where((search) {
+                        final name = search['name'].toString();
+                        final code = search['code'].toString();
+
+                        if (name.toLowerCase().contains(value.toLowerCase()) ||
+                            code.toLowerCase().contains(value.toLowerCase())) {
+                          return true;
+                        }
+                        return false;
+                      }).toList();
+                    });
+                  },
+                ),
+                SizedBox(height: 10),
                 Expanded(
                   child: BlocBuilder<CryptoBloc, CryptoState>(
                     builder: (context, state) {
@@ -113,19 +141,28 @@ class _HomeState extends State<Home> {
                             itemBuilder: (context, index) {
                               return loadingSkeleton();
                             },
-                          )
+                          ),
                         );
                       } else if (state is CryptoLoadedState) {
+                        cryptoList = state.cryptos.map((crypto) {
+                          return {
+                            'image': crypto.safeImage,
+                            'name': crypto.safeName,
+                            'code': crypto.safeCode,
+                            'price': crypto.safePrice,
+                            'change': crypto.safeChange,
+                          };
+                        }).toList();
                         return ListView.builder(
-                          itemCount: state.cryptos.length,
+                          itemCount: cryptoFilteredList.length,
                           itemBuilder: (context, index) {
-                            final crypto = state.cryptos[index];
+                            final crypto = cryptoFilteredList[index];
                             return cryptosUI(
-                              crypto.safeImage,
-                              crypto.safeName,
-                              crypto.safeCode,
-                              crypto.safePrice,
-                              crypto.safeChange,
+                              crypto['image'],
+                              crypto['name'],
+                              crypto['code'],
+                              crypto['price'],
+                              crypto['change'],
                             );
                           },
                         );

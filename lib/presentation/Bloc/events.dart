@@ -18,7 +18,7 @@ class FetchCryptoInfos extends CryptoEvent {
   FetchCryptoInfos({this.code = 'BTC'});
 }
 
-// <----- Bloc -----> //
+// <----- Bloc -----> // // -- Usecase yok 
 class CryptoBloc extends Bloc<CryptoEvent, CryptoState> {
   final CryptoRepoAbstract repository;
 
