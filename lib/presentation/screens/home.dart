@@ -115,6 +115,10 @@ class _HomeState extends State<Home> {
                   ),
                   onChanged: (value) {
                     setState(() {
+                      if (value.isEmpty) {
+                        cryptoFilteredList = cryptoList;
+                        return;
+                      }
                       cryptoFilteredList = cryptoList.where((search) {
                         final name = search['name'].toString();
                         final code = search['code'].toString();
@@ -153,6 +157,9 @@ class _HomeState extends State<Home> {
                             'change': crypto.safeChange,
                           };
                         }).toList();
+                        if (cryptoFilteredList.isEmpty) {
+                          cryptoFilteredList = cryptoList;
+                        }
                         return ListView.builder(
                           itemCount: cryptoFilteredList.length,
                           itemBuilder: (context, index) {
