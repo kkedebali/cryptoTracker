@@ -24,6 +24,7 @@ class _HomeState extends State<Home> {
   List<Map<String, dynamic>> cryptoList = [];
   List<Map<String, dynamic>> cryptoFilteredList = [];
 
+  final TextEditingController searchController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -105,6 +106,7 @@ class _HomeState extends State<Home> {
                 ),
                 SizedBox(height: 10),
                 TextField(
+                  controller: searchController,
                   style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Arama...',
@@ -126,8 +128,9 @@ class _HomeState extends State<Home> {
                         if (name.toLowerCase().contains(value.toLowerCase()) ||
                             code.toLowerCase().contains(value.toLowerCase())) {
                           return true;
+                        } else {
+                          return false;
                         }
-                        return false;
                       }).toList();
                     });
                   },
@@ -157,13 +160,21 @@ class _HomeState extends State<Home> {
                             'change': crypto.safeChange,
                           };
                         }).toList();
-                        if (cryptoFilteredList.isEmpty) {
-                          cryptoFilteredList = cryptoList;
+
+                        final displayList = searchController.text.isEmpty
+                            ? cryptoList
+                            : cryptoFilteredList;
+
+                        if (displayList.isEmpty) {
+                          return Center(
+                            child: secText('Aradığınız kripto bulunamadı.'),
+                          );
                         }
+
                         return ListView.builder(
-                          itemCount: cryptoFilteredList.length,
+                          itemCount: displayList.length,
                           itemBuilder: (context, index) {
-                            final crypto = cryptoFilteredList[index];
+                            final crypto = displayList[index];
                             return cryptosUI(
                               crypto['image'],
                               crypto['name'],
