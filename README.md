@@ -4,6 +4,12 @@ Modern Flutter standartları ve **Clean Architecture** prensipleriyle geliştiri
 
 ---
 
+## ✨ Ekran görüntüleri
+<img width="300" alt="Image" src="https://github.com/user-attachments/assets/4856dfc3-8184-4b6d-bb0e-cbe3c4fff83c"/>
+<img width="300" alt="Image" src="https://github.com/user-attachments/assets/39c6f21c-810d-428b-a650-fb9b04c8d2ba"/>
+
+---
+
 ## 🚀 Öne Çıkan Özellikler
 
 - **Clean Architecture:** Sürdürülebilir, test edilebilir ve katmanlı mimari (`Data`, `Domain`, `Presentation`).
